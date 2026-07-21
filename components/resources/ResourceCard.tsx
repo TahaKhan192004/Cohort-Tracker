@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
-import { ResourceTypeBadge } from "@/components/ui/Badge";
+import { ResourceTypeBadge, RESOURCE_TYPE_STYLES } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 import {
   ClipboardListIcon,
   FilmIcon,
@@ -20,12 +21,22 @@ const TYPE_ICONS: Record<ResourceType, ComponentType<SVGProps<SVGSVGElement>>> =
 
 export function ResourceCard({ resource }: { resource: Resource }) {
   const TypeIcon = TYPE_ICONS[resource.resource_type];
+  const style = RESOURCE_TYPE_STYLES[resource.resource_type];
   return (
     <Link
       href={`/resources/${resource.id}`}
-      className="group flex flex-col overflow-hidden rounded-[7px] border border-sand bg-white/60 transition-colors hover:border-ring-accent"
+      className={cn(
+        // Hover recolours only three sides — the left edge stays the type colour.
+        "group flex flex-col overflow-hidden rounded-[7px] border border-sand border-l-[3px] bg-white/60 transition-colors hover:border-t-ring-accent hover:border-r-ring-accent hover:border-b-ring-accent",
+        style.border,
+      )}
     >
-      <div className="flex aspect-video items-center justify-center overflow-hidden bg-muted-warm">
+      <div
+        className={cn(
+          "flex aspect-video items-center justify-center overflow-hidden",
+          resource.thumbnail_url ? "bg-muted-warm" : style.tint,
+        )}
+      >
         {resource.thumbnail_url ? (
           // Thumbnails are arbitrary external URLs, so plain <img> avoids
           // having to allowlist every host in next.config.
@@ -36,7 +47,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <TypeIcon className="text-4xl text-smoke/50" />
+          <TypeIcon className={cn("text-4xl", style.icon)} />
         )}
       </div>
 

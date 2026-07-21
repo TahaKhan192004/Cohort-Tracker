@@ -12,6 +12,13 @@
   --sand: #e8dbd1;
   --muted: #f3e9df;
 
+  /* Resource types — one warm hue each so a skill never reads as an SOP */
+  --res-recording: #8c4a2f;
+  --res-video: #b07a2e;
+  --res-sop: #5c7a52;
+  --res-skill: #7a1f2b;
+  --res-document: #6d5851;
+
   /* semantic */
   --background: var(--cream);
   --foreground: var(--espresso);
@@ -26,6 +33,12 @@
   --color-ring-accent: var(--ring);
   --color-sand: var(--sand);
   --color-muted-warm: var(--muted);
+
+  --color-res-recording: var(--res-recording);
+  --color-res-video: var(--res-video);
+  --color-res-sop: var(--res-sop);
+  --color-res-skill: var(--res-skill);
+  --color-res-document: var(--res-document);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

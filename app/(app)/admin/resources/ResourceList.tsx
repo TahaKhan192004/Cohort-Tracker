@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteResource, moveResource } from "@/app/actions/admin-content";
 import { ResourceForm } from "@/components/admin/ResourceForm";
-import { ResourceTypeBadge } from "@/components/ui/Badge";
+import { ResourceTypeBadge, RESOURCE_TYPE_STYLES } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import {
   ChevronUpIcon,
@@ -31,7 +32,10 @@ export function ResourceList({ resources }: { resources: Resource[] }) {
         {resources.map((resource, index) => (
           <li
             key={resource.id}
-            className="flex flex-wrap items-center gap-4 rounded-[7px] border border-sand bg-white/60 p-4"
+            className={cn(
+              "flex flex-wrap items-center gap-4 rounded-[7px] border border-sand border-l-[3px] bg-white/60 p-4",
+              RESOURCE_TYPE_STYLES[resource.resource_type].border,
+            )}
           >
             <div className="flex flex-col gap-0.5">
               <button

@@ -58,8 +58,56 @@ export function TaskTypeBadge({ type }: { type: TaskType }) {
   return <Badge tone="neutral">{TASK_TYPE_LABELS[type]}</Badge>;
 }
 
+// Each resource type carries its own warm hue, so a Skill is distinguishable
+// from an SOP or a recording at a glance. Written out in full (not composed)
+// because Tailwind only sees class names that appear literally in the source.
+export const RESOURCE_TYPE_STYLES: Record<
+  ResourceType,
+  { badge: string; border: string; tint: string; icon: string }
+> = {
+  recording: {
+    badge: "border-res-recording/40 bg-res-recording/12 text-res-recording",
+    border: "border-l-res-recording",
+    tint: "bg-res-recording/8",
+    icon: "text-res-recording/45",
+  },
+  video_tutorial: {
+    badge: "border-res-video/40 bg-res-video/12 text-res-video",
+    border: "border-l-res-video",
+    tint: "bg-res-video/8",
+    icon: "text-res-video/45",
+  },
+  sop: {
+    badge: "border-res-sop/40 bg-res-sop/12 text-res-sop",
+    border: "border-l-res-sop",
+    tint: "bg-res-sop/8",
+    icon: "text-res-sop/45",
+  },
+  skill: {
+    badge: "border-res-skill/40 bg-res-skill/12 text-res-skill",
+    border: "border-l-res-skill",
+    tint: "bg-res-skill/8",
+    icon: "text-res-skill/45",
+  },
+  document: {
+    badge: "border-res-document/40 bg-res-document/12 text-res-document",
+    border: "border-l-res-document",
+    tint: "bg-res-document/8",
+    icon: "text-res-document/45",
+  },
+};
+
 export function ResourceTypeBadge({ type }: { type: ResourceType }) {
-  return <Badge tone="accent">{RESOURCE_TYPE_LABELS[type]}</Badge>;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-[5px] border px-2 py-0.5 text-xs whitespace-nowrap",
+        RESOURCE_TYPE_STYLES[type].badge,
+      )}
+    >
+      {RESOURCE_TYPE_LABELS[type]}
+    </span>
+  );
 }
 
 const SUBMISSION_TONES: Record<SubmissionStatus, Tone> = {
