@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SidebarNav } from "./Sidebar";
 import { NotificationBell } from "./NotificationBell";
 import { signOut } from "@/app/actions/auth";
+import { MenuIcon } from "@/components/ui/icons";
 import type { AppNotification, AppUser } from "@/lib/types";
 
 export function Navbar({
@@ -25,9 +26,9 @@ export function Navbar({
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Toggle navigation"
           aria-expanded={menuOpen}
-          className="rounded-[7px] border border-sand px-3 py-2 text-sm lg:hidden"
+          className="rounded-[7px] border border-sand px-3 py-2 text-lg text-espresso lg:hidden"
         >
-          ☰
+          <MenuIcon />
         </button>
 
         <div className="hidden min-w-0 lg:block">

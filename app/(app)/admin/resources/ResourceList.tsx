@@ -6,6 +6,11 @@ import { deleteResource, moveResource } from "@/app/actions/admin-content";
 import { ResourceForm } from "@/components/admin/ResourceForm";
 import { ResourceTypeBadge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  ExternalLinkIcon,
+} from "@/components/ui/icons";
 import type { Resource } from "@/lib/types";
 
 export function ResourceList({ resources }: { resources: Resource[] }) {
@@ -34,18 +39,18 @@ export function ResourceList({ resources }: { resources: Resource[] }) {
                 aria-label="Move up"
                 disabled={pending || index === 0}
                 onClick={() => run(() => moveResource(resource.id, "up"))}
-                className="rounded-[4px] px-1.5 text-xs text-smoke transition-colors hover:bg-muted-warm hover:text-espresso disabled:opacity-30"
+                className="rounded-[4px] px-1.5 py-0.5 text-sm text-smoke transition-colors hover:bg-muted-warm hover:text-espresso disabled:opacity-30"
               >
-                ▲
+                <ChevronUpIcon />
               </button>
               <button
                 type="button"
                 aria-label="Move down"
                 disabled={pending || index === resources.length - 1}
                 onClick={() => run(() => moveResource(resource.id, "down"))}
-                className="rounded-[4px] px-1.5 text-xs text-smoke transition-colors hover:bg-muted-warm hover:text-espresso disabled:opacity-30"
+                className="rounded-[4px] px-1.5 py-0.5 text-sm text-smoke transition-colors hover:bg-muted-warm hover:text-espresso disabled:opacity-30"
               >
-                ▼
+                <ChevronDownIcon />
               </button>
             </div>
 
@@ -61,9 +66,9 @@ export function ResourceList({ resources }: { resources: Resource[] }) {
                     href={resource.content_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-smoke hover:text-terracotta"
+                    className="inline-flex items-center gap-1 text-xs text-smoke hover:text-terracotta"
                   >
-                    Open ↗
+                    Open <ExternalLinkIcon />
                   </a>
                 ) : null}
               </div>

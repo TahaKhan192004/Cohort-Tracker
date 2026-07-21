@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { CloseIcon } from "./icons";
 
 export function Modal({
   open,
@@ -48,9 +49,9 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-[5px] px-2 py-1 text-smoke transition-colors hover:bg-muted-warm hover:text-espresso"
+            className="rounded-[5px] px-2 py-1 text-lg text-smoke transition-colors hover:bg-muted-warm hover:text-espresso"
           >
-            ✕
+            <CloseIcon />
           </button>
         </div>
         {children}

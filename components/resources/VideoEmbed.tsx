@@ -1,4 +1,5 @@
 import { toEmbedUrl } from "@/lib/utils";
+import { ExternalLinkIcon } from "@/components/ui/icons";
 
 export function VideoEmbed({ url, title }: { url: string; title: string }) {
   const embed = toEmbedUrl(url);
@@ -12,7 +13,7 @@ export function VideoEmbed({ url, title }: { url: string; title: string }) {
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 rounded-[7px] border border-sand bg-white/60 px-4 py-3 text-sm text-espresso transition-colors hover:border-ring-accent"
       >
-        Open resource ↗
+        Open resource <ExternalLinkIcon />
       </a>
     );
   }

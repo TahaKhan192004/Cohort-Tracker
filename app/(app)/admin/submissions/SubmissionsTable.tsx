@@ -12,6 +12,7 @@ import { SubmissionStatusBadge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Textarea, FormError } from "@/components/ui/Field";
+import { ExternalLinkIcon } from "@/components/ui/icons";
 import { formatDateTime } from "@/lib/utils";
 import type { Submission } from "@/lib/types";
 
@@ -137,18 +138,18 @@ function ReviewModal({
                 href={submission.link_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-[7px] border border-sand px-3 py-1.5 text-sm text-espresso transition-colors hover:bg-muted-warm"
+                className="inline-flex items-center gap-1.5 rounded-[7px] border border-sand px-3 py-1.5 text-sm text-espresso transition-colors hover:bg-muted-warm"
               >
-                Open link ↗
+                Open link <ExternalLinkIcon />
               </a>
             ) : null}
             {submission.file_url ? (
               <button
                 type="button"
                 onClick={() => openFile(submission.file_url!)}
-                className="rounded-[7px] border border-sand px-3 py-1.5 text-sm text-espresso transition-colors hover:bg-muted-warm"
+                className="inline-flex items-center gap-1.5 rounded-[7px] border border-sand px-3 py-1.5 text-sm text-espresso transition-colors hover:bg-muted-warm"
               >
-                Open file ↗
+                Open file <ExternalLinkIcon />
               </button>
             ) : null}
           </div>

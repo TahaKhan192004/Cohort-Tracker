@@ -1,16 +1,25 @@
 import Link from "next/link";
+import type { ComponentType, SVGProps } from "react";
 import { ResourceTypeBadge } from "@/components/ui/Badge";
+import {
+  ClipboardListIcon,
+  FilmIcon,
+  WrenchIcon,
+  MicIcon,
+  FileTextIcon,
+} from "@/components/ui/icons";
 import type { Resource, ResourceType } from "@/lib/types";
 
-const TYPE_ICONS: Record<ResourceType, string> = {
-  sop: "📋",
-  video_tutorial: "🎬",
-  skill: "🛠",
-  recording: "🎙",
-  document: "📄",
+const TYPE_ICONS: Record<ResourceType, ComponentType<SVGProps<SVGSVGElement>>> = {
+  sop: ClipboardListIcon,
+  video_tutorial: FilmIcon,
+  skill: WrenchIcon,
+  recording: MicIcon,
+  document: FileTextIcon,
 };
 
 export function ResourceCard({ resource }: { resource: Resource }) {
+  const TypeIcon = TYPE_ICONS[resource.resource_type];
   return (
     <Link
       href={`/resources/${resource.id}`}
@@ -27,9 +36,7 @@ export function ResourceCard({ resource }: { resource: Resource }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-3xl opacity-60" aria-hidden>
-            {TYPE_ICONS[resource.resource_type]}
-          </span>
+          <TypeIcon className="text-4xl text-smoke/50" />
         )}
       </div>
 
