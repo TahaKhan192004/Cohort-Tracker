@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="14" fill="#271512"/>
+  <!-- Serif "A" in cream, matching the Newsreader display face -->
+  <path d="M32 13 L47 51 H40.2 L36.8 41.6 H27.2 L23.8 51 H17 L32 13 Z M29 36 H35 L32 27 Z"
+        fill="#FFF9F1"/>
+  <!-- Terracotta accent dot — the brand's one interactive colour -->
+  <circle cx="32" cy="55.5" r="3" fill="#CA8E79"/>
+</svg>
