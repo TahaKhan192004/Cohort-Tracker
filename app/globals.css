@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
+/* ── AI Savvy Founders brand tokens ──────────────────────────────
+   No cool greys. Terracotta is for CTAs and accents only.        */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --umber: #271512;
+  --cream: #fff9f1;
+  --terracotta: #7a1f2b;
+  --espresso: #3a211d;
+  --warm-smoke: #6d5851;
+  --ring: #ca8e79;
+  --sand: #e8dbd1;
+  --muted: #f3e9df;
+
+  /* semantic */
+  --background: var(--cream);
+  --foreground: var(--espresso);
 }
 
 @theme inline {
+  --color-umber: var(--umber);
+  --color-cream: var(--cream);
+  --color-terracotta: var(--terracotta);
+  --color-espresso: var(--espresso);
+  --color-smoke: var(--warm-smoke);
+  --color-ring-accent: var(--ring);
+  --color-sand: var(--sand);
+  --color-muted-warm: var(--muted);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-manrope), Arial, sans-serif;
+
+  --radius-brand: 7px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), Arial, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 400;
+  color: var(--umber);
+  letter-spacing: -0.01em;
+}
+
+/* Signature move: upright noun + italic verb */
+.italic-verb {
+  font-style: italic;
+}
+
+/* Focus ring uses the warm --ring token, never a cool blue */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--ring);
+  color: var(--cream);
+}
+
+/* Markdown body inside task descriptions */
+.prose-brand {
+  color: var(--espresso);
+  line-height: 1.7;
+}
+.prose-brand p {
+  margin-bottom: 0.9rem;
+}
+.prose-brand ul,
+.prose-brand ol {
+  margin: 0.9rem 0 0.9rem 1.25rem;
+  list-style: revert;
+}
+.prose-brand li {
+  margin-bottom: 0.35rem;
+}
+.prose-brand a {
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-brand code {
+  background: var(--muted);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.prose-brand h1,
+.prose-brand h2,
+.prose-brand h3 {
+  margin: 1.4rem 0 0.6rem;
+}
+.prose-brand strong {
+  font-weight: 500;
 }
