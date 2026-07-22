@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { createTask, updateTask } from "@/app/actions/admin-tasks";
 import type { ActionState } from "@/app/actions/auth";
@@ -13,7 +13,14 @@ import {
   FormSuccess,
 } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import { TASK_TYPE_LABELS, type Task, type TaskType } from "@/lib/types";
+import {
+  RESOURCE_TYPE_LABELS,
+  TASK_TYPE_LABELS,
+  type ResourceType,
+  type Task,
+  type TaskType,
+} from "@/lib/types";
+import type { ResourceOption } from "@/lib/queries";
 
 /** datetime-local wants "YYYY-MM-DDTHH:mm" in local time. */
 function toLocalInputValue(iso: string | undefined) {
@@ -34,11 +41,49 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export function TaskForm({ task }: { task?: Task }) {
+/** `[` and `]` would terminate the link text early. */
+function escapeLinkText(title: string) {
+  return title.replace(/([[\]])/g, "\\$1");
+}
+
+export function TaskForm({
+  task,
+  resources = [],
+}: {
+  task?: Task;
+  resources?: ResourceOption[];
+}) {
   const [state, formAction] = useActionState<ActionState, FormData>(
     task ? updateTask : createTask,
     {},
   );
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  /**
+   * Writes straight to the DOM node rather than through state — the textarea
+   * is uncontrolled, and the form reads its value on submit either way. This
+   * also keeps the caret where the admin left it.
+   */
+  function insertResourceLink(resource: ResourceOption) {
+    const el = descriptionRef.current;
+    if (!el) return;
+
+    const snippet = `[${escapeLinkText(resource.title)}](/resources/${resource.id})`;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? start;
+
+    el.value = el.value.slice(0, start) + snippet + el.value.slice(end);
+
+    const caret = start + snippet.length;
+    el.focus();
+    el.setSelectionRange(caret, caret);
+  }
+
+  // Grouped so a long library stays scannable in the dropdown.
+  const byType = new Map<ResourceType, ResourceOption[]>();
+  for (const r of resources) {
+    byType.set(r.resource_type, [...(byType.get(r.resource_type) ?? []), r]);
+  }
 
   return (
     <form action={formAction} className="space-y-4">
@@ -50,11 +95,42 @@ export function TaskForm({ task }: { task?: Task }) {
 
       <Field label="Description" htmlFor="description" hint="markdown supported">
         <Textarea
+          ref={descriptionRef}
           id="description"
           name="description"
           defaultValue={task?.description ?? ""}
           className="min-h-40"
         />
+
+        {resources.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Select
+              aria-label="Insert a link to a resource"
+              defaultValue=""
+              className="max-w-xs text-xs"
+              onChange={(e) => {
+                const picked = resources.find((r) => r.id === e.target.value);
+                if (picked) insertResourceLink(picked);
+                // Reset so picking the same resource twice still fires.
+                e.target.value = "";
+              }}
+            >
+              <option value="">Link a resource…</option>
+              {[...byType.entries()].map(([type, items]) => (
+                <optgroup key={type} label={RESOURCE_TYPE_LABELS[type]}>
+                  {items.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.title}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
+            <span className="text-xs text-smoke">
+              Inserts a markdown link at your cursor.
+            </span>
+          </div>
+        ) : null}
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">

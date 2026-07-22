@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAdmin, getActiveCohort } from "@/lib/auth";
+import { getCohortResourceOptions } from "@/lib/queries";
 import { Card, Eyebrow } from "@/components/ui/Card";
 import { TaskForm } from "@/components/admin/TaskForm";
 
@@ -8,6 +9,7 @@ export const metadata = { title: "New task — Admin" };
 export default async function CreateTaskPage() {
   await requireAdmin();
   const cohort = await getActiveCohort();
+  const resources = cohort ? await getCohortResourceOptions(cohort.id) : [];
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -25,7 +27,7 @@ export default async function CreateTaskPage() {
       </header>
 
       <Card>
-        <TaskForm />
+        <TaskForm resources={resources} />
       </Card>
     </div>
   );

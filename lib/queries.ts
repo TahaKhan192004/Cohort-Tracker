@@ -2,7 +2,28 @@ import "server-only";
 
 import { createClient } from "./supabase/server";
 import { displayStatus } from "./utils";
-import type { AssignmentWithTask, DisplayStatus } from "./types";
+import type { AssignmentWithTask, DisplayStatus, ResourceType } from "./types";
+
+export interface ResourceOption {
+  id: string;
+  title: string;
+  resource_type: ResourceType;
+}
+
+/** Just enough of each resource to build a link picker in the task form. */
+export async function getCohortResourceOptions(
+  cohortId: string,
+): Promise<ResourceOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("resources")
+    .select("id, title, resource_type")
+    .eq("cohort_id", cohortId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  return (data ?? []) as ResourceOption[];
+}
 
 /** Every assignment for a participant, joined with its task, deadline order. */
 export async function getMyAssignments(

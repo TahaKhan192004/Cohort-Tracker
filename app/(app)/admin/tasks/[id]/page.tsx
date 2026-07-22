@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getCohortResourceOptions } from "@/lib/queries";
 import { Card, CardHeader, Eyebrow } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/Badge";
 import { TableWrap, Th, Td, Tr } from "@/components/ui/Table";
@@ -26,6 +27,8 @@ export default async function AdminTaskDetail({
 
   const task = taskRow as Task | null;
   if (!task) notFound();
+
+  const resources = await getCohortResourceOptions(task.cohort_id);
 
   const [{ data: assignmentRows }, { count: submissionCount }] = await Promise.all([
     supabase
@@ -105,7 +108,7 @@ export default async function AdminTaskDetail({
 
       <Card>
         <CardHeader title="Edit task" />
-        <TaskForm task={task} />
+        <TaskForm task={task} resources={resources} />
       </Card>
 
       <Card>
