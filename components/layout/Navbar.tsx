@@ -4,8 +4,10 @@ import { useState } from "react";
 import { SidebarNav } from "./Sidebar";
 import { NotificationBell } from "./NotificationBell";
 import { signOut } from "@/app/actions/auth";
-import { MenuIcon } from "@/components/ui/icons";
+import { MenuIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import type { AppNotification, AppUser } from "@/lib/types";
+
+const SURVEY_URL = "https://cohort-survey.aisavvyfounders.com/";
 
 export function Navbar({
   user,
@@ -39,6 +41,19 @@ export function Navbar({
         </div>
 
         <div className="flex items-center gap-2.5">
+          {/* External host, so a plain anchor rather than next/link. Terracotta
+              fill is the reserved CTA treatment — this is the one on the shell. */}
+          <a
+            href={SURVEY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-[7px] border border-terracotta bg-terracotta px-3 py-2 text-sm whitespace-nowrap text-cream transition-colors hover:border-umber hover:bg-umber"
+          >
+            <span className="sm:hidden">Survey</span>
+            <span className="hidden sm:inline">Take the survey</span>
+            <ExternalLinkIcon className="opacity-80" />
+          </a>
+
           <NotificationBell
             notifications={notifications}
             unreadCount={unreadCount}

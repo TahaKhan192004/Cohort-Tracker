@@ -61,6 +61,15 @@ export function ExternalLinkIcon(props: IconProps) {
   );
 }
 
+export function SearchIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </Svg>
+  );
+}
+
 export function ChevronUpIcon(props: IconProps) {
   return (
     <Svg {...props}>
