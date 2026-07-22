@@ -137,9 +137,13 @@ export function toEmbedUrl(url: string): string | null {
       const id = u.searchParams.get("v");
       if (id) return `https://www.youtube.com/embed/${id}`;
       if (u.pathname.startsWith("/embed/")) return url;
+      // Shorts and live permalinks carry the id in the path instead.
+      const pathId = u.pathname.match(/^\/(?:shorts|live)\/([^/?#]+)/)?.[1];
+      if (pathId) return `https://www.youtube.com/embed/${pathId}`;
     }
     if (host === "youtu.be") {
-      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+      const id = u.pathname.slice(1);
+      return id ? `https://www.youtube.com/embed/${id}` : null;
     }
     if (host === "loom.com") {
       const id = u.pathname.split("/").pop();

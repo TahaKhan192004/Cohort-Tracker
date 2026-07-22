@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { CloseIcon } from "./icons";
+
+const WIDTHS = { md: "max-w-2xl", lg: "max-w-4xl" } as const;
 
 export function Modal({
   open,
   onClose,
   title,
+  size = "md",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: ReactNode;
+  size?: keyof typeof WIDTHS;
   children: ReactNode;
 }) {
   useEffect(() => {
@@ -40,7 +45,10 @@ export function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-2xl rounded-[7px] border border-sand bg-cream p-6 shadow-lg"
+        className={cn(
+          "w-full rounded-[7px] border border-sand bg-cream p-6 shadow-lg",
+          WIDTHS[size],
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-start justify-between gap-4">

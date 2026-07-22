@@ -106,6 +106,22 @@ export async function updateTask(
   return { success: "Task saved." };
 }
 
+/** Show or hide a task from participants, straight from the admin table. */
+export async function setTaskVisibility(id: string, isPublished: boolean) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("tasks")
+    .update({ is_published: isPublished, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/tasks");
+  revalidatePath(`/admin/tasks/${id}`);
+  return {};
+}
+
 export async function deleteTask(id: string) {
   await requireAdmin();
   const supabase = await createClient();

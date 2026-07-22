@@ -54,6 +54,8 @@ export interface Task {
   task_type: TaskType;
   skill_name: string | null;
   sort_order: number;
+  /** Hidden tasks are invisible to participants — enforced in RLS. */
+  is_published: boolean;
   created_at: string;
   updated_at: string;
 }

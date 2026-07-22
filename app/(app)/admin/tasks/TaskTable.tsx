@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { deleteTask, deleteTasks, duplicateTask } from "@/app/actions/admin-tasks";
+import { useOptimistic, useState, useTransition } from "react";
+import {
+  deleteTask,
+  deleteTasks,
+  duplicateTask,
+  setTaskVisibility,
+} from "@/app/actions/admin-tasks";
 import { TableWrap, Th, Td, Tr } from "@/components/ui/Table";
 import { TaskTypeBadge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/Progress";
 import { Button } from "@/components/ui/Button";
+import { Toggle } from "@/components/ui/Toggle";
 import { formatDateTime, percent, urgency } from "@/lib/utils";
 import type { Task } from "@/lib/types";
 
@@ -94,6 +100,7 @@ export function TaskTable({ rows }: { rows: AdminTaskRow[] }) {
             <Th>Week / Day</Th>
             <Th>Deadline</Th>
             <Th>Type</Th>
+            <Th className="w-28">Visible</Th>
             <Th className="w-44">Completion</Th>
             <Th className="w-32" />
           </tr>
@@ -113,7 +120,11 @@ export function TaskTable({ rows }: { rows: AdminTaskRow[] }) {
               <Td>
                 <Link
                   href={`/admin/tasks/${task.id}`}
-                  className="text-espresso hover:text-terracotta"
+                  className={
+                    task.is_published
+                      ? "text-espresso hover:text-terracotta"
+                      : "text-smoke italic hover:text-terracotta"
+                  }
                 >
                   {task.title}
                 </Link>
@@ -133,6 +144,9 @@ export function TaskTable({ rows }: { rows: AdminTaskRow[] }) {
                 <TaskTypeBadge type={task.task_type} />
               </Td>
               <Td>
+                <VisibilityToggle task={task} />
+              </Td>
+              <Td>
                 <ProgressBar value={percent(completed, assigned)} />
                 <p className="mt-1 text-xs text-smoke">
                   {completed}/{assigned} done
@@ -148,6 +162,33 @@ export function TaskTable({ rows }: { rows: AdminTaskRow[] }) {
           ))}
         </tbody>
       </TableWrap>
+    </div>
+  );
+}
+
+function VisibilityToggle({ task }: { task: Task }) {
+  const [pending, startTransition] = useTransition();
+  // The switch moves immediately, then snaps back to whatever the server
+  // reports once the action revalidates — including on failure.
+  const [published, setPublished] = useOptimistic(task.is_published);
+
+  return (
+    <div className="flex items-center gap-2">
+      <Toggle
+        checked={published}
+        disabled={pending}
+        label={`${published ? "Hide" : "Show"} ${task.title} for participants`}
+        onChange={(next) => {
+          startTransition(async () => {
+            setPublished(next);
+            const result = await setTaskVisibility(task.id, next);
+            if (result?.error) alert(`Could not update visibility: ${result.error}`);
+          });
+        }}
+      />
+      <span className={published ? "text-xs text-smoke" : "text-xs text-terracotta"}>
+        {published ? "Live" : "Hidden"}
+      </span>
     </div>
   );
 }

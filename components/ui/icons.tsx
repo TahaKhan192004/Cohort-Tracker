@@ -61,6 +61,14 @@ export function ExternalLinkIcon(props: IconProps) {
   );
 }
 
+export function PlayIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <Svg {...props}>
