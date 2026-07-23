@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin, getActiveCohort } from "@/lib/auth";
-import { splitDelimitedLine } from "@/lib/utils";
+import { splitDelimitedLine, cohortWallClockToUtcIso } from "@/lib/utils";
+import { notifyNewTask } from "@/lib/email";
 import type { ActionState } from "./auth";
 import type { TaskType } from "@/lib/types";
 
@@ -37,6 +38,21 @@ async function assignToCohort(taskId: string, cohortId: string) {
   );
 }
 
+/** Email addresses of everyone currently in the cohort. */
+async function cohortRecipients(cohortId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("cohort_members")
+    .select("user:users(email, full_name)")
+    .eq("cohort_id", cohortId);
+
+  return ((data ?? []) as unknown as {
+    user: { email: string; full_name: string } | null;
+  }[])
+    .map((m) => m.user)
+    .filter((u): u is { email: string; full_name: string } => Boolean(u));
+}
+
 function readTaskForm(formData: FormData) {
   const week = String(formData.get("week_number") ?? "").trim();
   const day = String(formData.get("day_number") ?? "").trim();
@@ -47,8 +63,9 @@ function readTaskForm(formData: FormData) {
     description: String(formData.get("description") ?? "").trim() || null,
     week_number: week ? Number(week) : null,
     day_number: day ? Number(day) : null,
-    // datetime-local has no timezone; treat it as the admin's local time.
-    deadline: deadlineRaw ? new Date(deadlineRaw).toISOString() : "",
+    // datetime-local carries no zone; the field is labelled ET, so read it
+    // as Eastern wall-clock and store the resulting UTC instant.
+    deadline: deadlineRaw ? cohortWallClockToUtcIso(deadlineRaw) : "",
     task_type: parseTaskType(String(formData.get("task_type") ?? "action")),
     skill_name: String(formData.get("skill_name") ?? "").trim() || null,
     sort_order: Number(formData.get("sort_order") ?? 0) || 0,
@@ -77,6 +94,22 @@ export async function createTask(
   if (error) return { error: error.message };
 
   await assignToCohort(data.id, cohort.id);
+
+  // Tell the cohort a task landed. Guarded so a mail hiccup never blocks
+  // creation, and kept before redirect() (which throws to navigate).
+  try {
+    await notifyNewTask(
+      {
+        title: values.title,
+        deadline: values.deadline,
+        description: values.description,
+        cohortName: cohort.name,
+      },
+      await cohortRecipients(cohort.id),
+    );
+  } catch (err) {
+    console.error("[createTask] new-task email failed", err);
+  }
 
   revalidatePath("/admin/tasks");
   redirect("/admin/tasks");
@@ -228,7 +261,8 @@ export async function parseBulkTasks(raw: string): Promise<ParsedTaskRow[]> {
       description,
       week_number: week ? Number(week) || null : null,
       day_number: day ? Number(day) || null : null,
-      deadline: validDate ? parsedDate!.toISOString() : deadline,
+      // Bare pasted times are Eastern wall-clock too, to match the form.
+      deadline: validDate ? cohortWallClockToUtcIso(deadline) : deadline,
       task_type: parseTaskType(type),
       error,
     };

@@ -66,8 +66,8 @@ export function BulkTaskUploader() {
           One task per line: <code className="text-xs">title, description, week, day, deadline, type</code>
         </p>
         <p className="mb-3 text-xs text-smoke">
-          Comma or tab separated. A header row is optional. Types: action,
-          submission, watch, skill_build.
+          Comma or tab separated. A header row is optional. Deadlines are read
+          as US Eastern (ET). Types: action, submission, watch, skill_build.
         </p>
         <Textarea
           value={raw}

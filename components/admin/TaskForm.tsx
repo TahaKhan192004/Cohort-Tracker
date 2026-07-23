@@ -21,16 +21,7 @@ import {
   type TaskType,
 } from "@/lib/types";
 import type { ResourceOption } from "@/lib/queries";
-
-/** datetime-local wants "YYYY-MM-DDTHH:mm" in local time. */
-function toLocalInputValue(iso: string | undefined) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}`;
-}
+import { utcIsoToCohortWallClock } from "@/lib/utils";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -158,12 +149,12 @@ export function TaskForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Deadline" htmlFor="deadline">
+        <Field label="Deadline" htmlFor="deadline" hint="US Eastern (ET)">
           <Input
             id="deadline"
             name="deadline"
             type="datetime-local"
-            defaultValue={toLocalInputValue(task?.deadline)}
+            defaultValue={utcIsoToCohortWallClock(task?.deadline)}
             required
           />
         </Field>

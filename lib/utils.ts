@@ -44,6 +44,70 @@ export function urgency(deadline: string): "ok" | "soon" | "late" {
   return "ok";
 }
 
+// ── Timezone ─────────────────────────────────────────────────────
+// Deadlines are anchored to the cohort's timezone (US Eastern), so "5pm"
+// means the same wall-clock time for every participant no matter where the
+// admin or the viewer is. Instants are still stored as UTC; only the
+// wall-clock reading is pinned here.
+export const COHORT_TIMEZONE = "America/New_York";
+
+/** Offset (ms) of `timeZone` from UTC at a given instant, DST included. */
+function zoneOffsetMs(instant: Date, timeZone: string) {
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const p: Record<string, number> = {};
+  for (const part of dtf.formatToParts(instant)) {
+    if (part.type !== "literal") p[part.type] = Number(part.value);
+  }
+  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  return asUtc - instant.getTime();
+}
+
+/**
+ * Read a bare "YYYY-MM-DDTHH:mm" (as it would read on a clock in the cohort
+ * timezone) as the matching UTC instant. A string that already carries a zone
+ * (Z or ±hh:mm) is trusted as-is.
+ */
+export function cohortWallClockToUtcIso(wallClock: string): string {
+  const s = wallClock.trim();
+  if (/[Zz]$|[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s).toISOString();
+
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (!m) return new Date(s).toISOString();
+
+  const guess = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  const offset = zoneOffsetMs(new Date(guess), COHORT_TIMEZONE);
+  return new Date(guess - offset).toISOString();
+}
+
+/** Inverse — render a stored UTC ISO as the cohort-timezone wall clock a
+ *  datetime-local input expects. */
+export function utcIsoToCohortWallClock(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const dtf = new Intl.DateTimeFormat("en-CA", {
+    timeZone: COHORT_TIMEZONE,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const p: Record<string, string> = {};
+  for (const part of dtf.formatToParts(new Date(iso))) {
+    if (part.type !== "literal") p[part.type] = part.value;
+  }
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+
 // ── Dates ────────────────────────────────────────────────────────
 
 export function formatDate(value: string | Date | null | undefined) {
@@ -57,11 +121,15 @@ export function formatDate(value: string | Date | null | undefined) {
 
 export function formatDateTime(value: string | Date | null | undefined) {
   if (!value) return "—";
+  // Anchored to the cohort timezone with its label ("EST"/"EDT"), so a
+  // deadline reads the same for the admin in Pakistan and the US participant.
   return new Date(value).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: COHORT_TIMEZONE,
+    timeZoneName: "short",
   });
 }
 
