@@ -3,11 +3,18 @@ import { requireOnboardedUser, getMyCohort, touchLastActive } from "@/lib/auth";
 import { getMyAssignments, summarize } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/server";
 import { TaskCard } from "@/components/tasks/TaskCard";
+import { AnnouncementBar } from "@/components/dashboard/AnnouncementBar";
 import { Card, CardHeader, Eyebrow, EmptyState } from "@/components/ui/Card";
 import { ProgressRing } from "@/components/ui/Progress";
 import { ButtonLink } from "@/components/ui/Button";
-import { currentWeek, displayStatus, isToday, relativeTime } from "@/lib/utils";
-import type { AppNotification } from "@/lib/types";
+import {
+  currentWeek,
+  displayStatus,
+  isToday,
+  relativeTime,
+  toEmbedUrl,
+} from "@/lib/utils";
+import type { AppNotification, Resource } from "@/lib/types";
 
 export const metadata = { title: "Dashboard — AI Savvy Founders" };
 
@@ -36,18 +43,41 @@ export default async function DashboardPage() {
     .slice(0, 4);
 
   const supabase = await createClient();
-  const { data: notificationRows } = await supabase
-    .from("notifications")
-    .select("*")
-    .eq("recipient_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const [{ data: notificationRows }, { data: replayRow }] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("*")
+      .eq("recipient_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    // Newest call recording drives the announcement bar, so posting a new
+    // replay updates the dashboard without a code change.
+    cohort
+      ? supabase
+          .from("resources")
+          .select("*")
+          .eq("cohort_id", cohort.id)
+          .eq("resource_type", "recording")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
   const notifications = (notificationRows ?? []) as AppNotification[];
+  const replay = replayRow as Resource | null;
 
   const week = cohort ? currentWeek(cohort.start_date) : null;
 
   return (
     <div className="space-y-10">
+      {replay ? (
+        <AnnouncementBar
+          resource={replay}
+          embedUrl={replay.content_url ? toEmbedUrl(replay.content_url) : null}
+        />
+      ) : null}
+
       <header>
         <Eyebrow>{cohort?.name ?? "Your cohort"}</Eyebrow>
         <h1 className="mt-3 text-3xl leading-tight">
